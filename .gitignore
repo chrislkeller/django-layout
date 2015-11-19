@@ -60,7 +60,6 @@ docs/_build/
 *.csv
 tmp/*
 public/static/*
-config/*.yml
 dbsync_setup.rb
 data/*
 SCRATCHPAD.md
