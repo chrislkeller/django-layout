@@ -5,14 +5,22 @@ This Django Project Template provides some defaults for new KPCC Django projects
 
 To use this template, run the following command:
 
-    django-admin.py startproject --template=https://github.com/chrislkeller/django-layout/zipball/master --extension=py,rst,gitignore,example {{ project_name }}
+    django-admin.py startproject --template=https://github.com/chrislkeller/django-layout/zipball/master --extension=py,rst,gitignore,example project_name
 
 Quickstart
 ==========
 
 **To bootstrap the project**:
 
-* This assumes you have Django 1.8 and Fabric installed outside of your virtualenv(s).
+* This assumes you have a Mac OS Python development environment up and running, and Django 1.8 and Fabric installed outside of your virtualenv(s).
+
+    * pip install Django==1.8.4 Fabric==1.9.1
+
+* Change into the project directory
+
+        cd project_name
+
+* Rename ```project_name/settings_common.py.template``` to ```project_name/settings_common.py``` and ```project_name/settings_production.py.template``` to ```project_name/settings_production.py```
 
 * Rename ```config.yml.template``` to ```config.yml``` and ```development.yml.template``` to ```development.yml```
 
@@ -24,6 +32,8 @@ Quickstart
           database: "project_name"
           username: "root"
           password: ""
+
+* Run ```fab makesecret``` and add the secret key to line 5 in ```development.yml```
 
 * Run ```fab bootstrap```
     * This attempts to scaffold the project by:
@@ -71,8 +81,53 @@ Quickstart
 * ```fab commit```
     * Commits and pushes to the version control repo
 
-**Documentation**:
 
-* Developer documentation is available in Sphinx format in the docs directory.
-* Initial installation instructions (including how to build the documentation as
-HTML) can be found in docs/install.rst.
+
+
+Mac OS Python development environment
+=====================================
+
+* Install homebrew python
+
+        cd /System/Library/Frameworks/Python.framework/Versions
+        sudo rm Current
+        brew install python
+        brew doctor
+        which python
+        which pip
+        pip install --upgrade setuptools
+        pip install --upgrade distribute
+        pip install virtualenv
+        pip install virtualenvwrapper
+        python --version
+        source /usr/local/bin/virtualenvwrapper.sh
+        sudo ln -s /usr/local/Cellar/python/2.7.8_2 /System/Library/Frameworks/Python.framework/Versions/Current
+
+* Configure $PATH variables for python, virtualenv
+
+        # homebrew path
+        export PATH="/usr/local/bin:$PATH"
+
+        # virtualenvwrapper settings
+        export WORKON_HOME=$HOME/.virtualenvs
+        export PIP_VIRTUALENV_BASE=$WORKON_HOME
+        export PIP_RESPECT_VIRTUALENV=true
+        source /usr/local/bin/virtualenvwrapper.sh
+
+* Install MySQL via homebrew
+
+        brew remove mysql
+        brew cleanup
+        launchctl unload -w ~/Library/LaunchAgents/homebrew.mxcl.mysql.plist
+        rm ~/Library/LaunchAgents/homebrew.mxcl.mysql.plist
+        sudo rm -rf /usr/local/var/mysql
+        brew install mysql
+        ln -sfv /usr/local/opt/mysql/*.plist ~/Library/LaunchAgents
+
+* Getting mysql up and running
+
+        mysql.server start
+        mysql_secure_installation
+        mysql -u root -p
+        SHOW DATABASES;
+        SET default_storage_engine=MYISAM;

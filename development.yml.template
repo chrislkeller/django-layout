@@ -1,7 +1,7 @@
 ---
 debug: True
 
-# generate a secret key https://docs.djangoproject.com/en/dev/ref/settings/#secret-key>
+# generate a secret key https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 secret_key: "{{ secret_key }}"
 
 # default is generally 127.0.0.1
