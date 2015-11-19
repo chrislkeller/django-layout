@@ -1,239 +1,148 @@
-from fabric.api import task, env, run, local, roles, cd, execute, hide, puts,\
-    sudo
-import posixpath
+from __future__ import with_statement
+from fabric.api import task, env, run, local, roles, cd, execute, hide, puts, sudo, prefix
 import re
+import os
+import sys
+import time
+import datetime
+import logging
+import shutil
+import MySQLdb
+import random
+import yaml
+from subprocess import Popen, PIPE
+from fabric.operations import prompt
+from fabric.contrib.console import confirm
+from fabric.context_managers import lcd
+from fabric.colors import green
+from fabric.contrib import django
+django.settings_module("{{ project_name }}.settings_production")
+from django.conf import settings
 
 env.project_name = '{{ project_name }}'
-env.repository = 'git@github.com:lincolnloop/{{ project_name }}.git'
+#env.repository = 'git@github.com:chrislkeller/{{ project_name }}.git'
 env.local_branch = 'master'
 env.remote_ref = 'origin/master'
-env.requirements_file = 'requirements.pip'
-env.restart_command = 'supervisorctl restart {project_name}'.format(**env)
-env.restart_sudo = True
+env.requirements_file = 'requirements.txt'
+env.use_ssh_config = True
 
+CONFIG_PATH = "%s_CONFIG_PATH" % ({{ project_name }}.upper())
+CONFIG_FILE = os.environ.setdefault(CONFIG_PATH, "./development.yml")
+CONFIG = yaml.load(open(CONFIG_FILE))
 
-#==============================================================================
-# Tasks which set up deployment environments
-#==============================================================================
+logger = logging.getLogger("root")
+logging.basicConfig(
+    format = "\033[1;36m%(levelname)s: %(filename)s (def %(funcName)s %(lineno)s): \033[1;37m %(message)s",
+    level=logging.DEBUG
+)
 
-@task
-def live():
+"""
+development functions
+"""
+
+def run():
     """
-    Use the live deployment environment.
+    shortcut for base manage.py function to run the dev server
     """
-    server = '{{ project_name }}.com'
-    env.roledefs = {
-        'web': [server],
-        'db': [server],
-    }
-    env.system_users = {server: 'www-data'}
-    env.virtualenv_dir = '/srv/www/{project_name}'.format(**env)
-    env.project_dir = '{virtualenv_dir}/src/{project_name}'.format(**env)
-    env.project_conf = '{project_name}.settings.local'.format(**env)
+    local("python manage.py runserver")
 
-
-@task
-def dev():
+def make():
     """
-    Use the development deployment environment.
+    shortcut for base manage.py function to sync the dev database
     """
-    server = '{{ project_name }}.dev.lincolnloop.com'
-    env.roledefs = {
-        'web': [server],
-        'db': [server],
-    }
-    env.system_users = {server: 'www-data'}
-    env.virtualenv_dir = '/srv/www/{project_name}'.format(**env)
-    env.project_dir = '{virtualenv_dir}/src/{project_name}'.format(**env)
-    env.project_conf = '{project_name}.conf.local'.format(**env)
+    local("python manage.py makemigrations")
 
-
-# Set the default environment.
-dev()
-
-
-#==============================================================================
-# Actual tasks
-#==============================================================================
-
-@task
-@roles('web', 'db')
-def bootstrap(action=''):
+def migrate():
     """
-    Bootstrap the environment.
+    shortcut for base manage.py function to apply db migrations
     """
-    with hide('running', 'stdout'):
-        exists = run('if [ -d "{virtualenv_dir}" ]; then echo 1; fi'\
-            .format(**env))
-    if exists and not action == 'force':
-        puts('Assuming {host} has already been bootstrapped since '
-            '{virtualenv_dir} exists.'.format(**env))
-        return
-    sudo('virtualenv {virtualenv_dir}'.format(**env))
-    if not exists:
-        sudo('mkdir -p {0}'.format(posixpath.dirname(env.virtualenv_dir)))
-        sudo('git clone {repository} {project_dir}'.format(**env))
-    sudo('{virtualenv_dir}/bin/pip install -e {project_dir}'.format(**env))
-    with cd(env.virtualenv_dir):
-        sudo('chown -R {user} .'.format(**env))
-        fix_permissions()
-    requirements()
-    puts('Bootstrapped {host} - database creation needs to be done manually.'\
-        .format(**env))
+    local("python manage.py migrate")
 
-
-@task
-@roles('web', 'db')
-def push():
+def superuser():
     """
-    Push branch to the repository.
+    shortcut for base manage.py function to create a superuser
     """
-    remote, dest_branch = env.remote_ref.split('/', 1)
-    local('git push {remote} {local_branch}:{dest_branch}'.format(
-        remote=remote, dest_branch=dest_branch, **env))
+    local("python manage.py createsuperuser")
 
+"""
+bootstrapping functions
+"""
 
-@task
-def deploy(verbosity='normal'):
-    """
-    Full server deploy.
-
-    Updates the repository (server-side), synchronizes the database, collects
-    static files and then restarts the web service.
-    """
-    if verbosity == 'noisy':
-        hide_args = []
-    else:
-        hide_args = ['running', 'stdout']
-    with hide(*hide_args):
-        puts('Updating repository...')
-        execute(update)
-        puts('Collecting static files...')
-        execute(collectstatic)
-        puts('Synchronizing database...')
-        execute(syncdb)
-        puts('Restarting web server...')
-        execute(restart)
-
-
-@task
-@roles('web', 'db')
-def update(action='check'):
-    """
-    Update the repository (server-side).
-
-    By default, if the requirements file changed in the repository then the
-    requirements will be updated. Use ``action='force'`` to force
-    updating requirements. Anything else other than ``'check'`` will avoid
-    updating requirements at all.
-    """
-    with cd(env.project_dir):
-        remote, dest_branch = env.remote_ref.split('/', 1)
-        run('git fetch {remote}'.format(remote=remote,
-            dest_branch=dest_branch, **env))
-        with hide('running', 'stdout'):
-            changed_files = run('git diff-index --cached --name-only '
-                '{remote_ref}'.format(**env)).splitlines()
-        if not changed_files and action != 'force':
-            # No changes, we can exit now.
-            return
-        if action == 'check':
-            reqs_changed = env.requirements_file in changed_files
-        else:
-            reqs_changed = False
-        run('git merge {remote_ref}'.format(**env))
-        run('find -name "*.pyc" -delete')
-        run('git clean -df')
-        fix_permissions()
-    if action == 'force' or reqs_changed:
-        # Not using execute() because we don't want to run multiple times for
-        # each role (since this task gets run per role).
-        requirements()
-
-
-@task
-@roles('web')
-def collectstatic():
-    """
-    Collect static files from apps and other locations in a single location.
-    """
-    dj('collectstatic --link --noinput')
-    with cd('{virtualenv_dir}/var/static'.format(**env)):
-        fix_permissions()
-
-
-@task
-@roles('db')
-def syncdb(sync=True, migrate=True):
-    """
-    Synchronize the database.
-    """
-    dj('syncdb --migrate --noinput')
-
-
-@task
-@roles('web')
-def restart():
-    """
-    Restart the web service.
-    """
-    if env.restart_sudo:
-        cmd = sudo
-    else:
-        cmd = run
-    cmd(env.restart_command)
-
-
-@task
-@roles('web', 'db')
 def requirements():
     """
-    Update the requirements.
+    shortcut to install requirements from repository's requirements.txt
     """
-    run('{virtualenv_dir}/bin/pip install -r {project_dir}/requirements.txt'\
-        .format(**env))
-    with cd('{virtualenv_dir}/src'.format(**env)):
-        with hide('running', 'stdout', 'stderr'):
-            dirs = []
-            for path in run('ls -db1 -- */').splitlines():
-                full_path = posixpath.normpath(posixpath.join(env.cwd, path))
-                if full_path != env.project_dir:
-                    dirs.append(path)
-        if dirs:
-            fix_permissions(' '.join(dirs))
-    with cd(env.virtualenv_dir):
-        with hide('running', 'stdout'):
-            match = re.search(r'\d+\.\d+', run('bin/python --version'))
-        if match:
-            with cd('lib/python{0}/site-packages'.format(match.group())):
-                fix_permissions()
+    local("pip install -r requirements.txt")
 
+def create_db():
+    connection = None
+    db_config = CONFIG["database"]
+    logger.debug("Creating %s database for %s django project" % (db_config["database"], env.project_name))
+    create_statement = "CREATE DATABASE %s" % (db_config["database"])
+    try:
+        connection = MySQLdb.connect(
+            host = db_config["host"],
+            user = db_config["username"],
+            passwd = db_config["password"]
+        )
+        cursor = connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute(create_statement)
+        connection.commit()
+    except MySQLdb.DatabaseError, e:
+        print "Error %s" % (e)
+        sys.exit(1)
+    finally:
+        if connection:
+            connection.close()
 
-#==============================================================================
-# Helper functions
-#==============================================================================
-
-def dj(command):
+def makesecret(length=50, allowed_chars='abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'):
     """
-    Run a Django manage.py command on the server.
+    generates secret key for use in django settings
+    https://github.com/datadesk/django-project-template/blob/master/fabfile/makesecret.py
     """
-    run('{virtualenv_dir}/bin/manage.py {dj_command} '
-        '--settings {project_conf}'.format(dj_command=command, **env))
+    key = ''.join(random.choice(allowed_chars) for i in range(length))
+    print 'SECRET_KEY = "%s"' % key
 
+def build():
+    local("python manage.py build")
 
-def fix_permissions(path='.'):
-    """
-    Fix the file permissions.
-    """
-    if ' ' in path:
-        full_path = '{path} (in {cwd})'.format(path=path, cwd=env.cwd)
-    else:
-        full_path = posixpath.normpath(posixpath.join(env.cwd, path))
-    puts('Fixing {0} permissions'.format(full_path))
-    with hide('running'):
-        system_user = env.system_users.get(env.host)
-        if system_user:
-            run('chmod -R g=rX,o= -- {0}'.format(path))
-            run('chgrp -R {0} -- {1}'.format(system_user, path))
-        else:
-            run('chmod -R go= -- {0}'.format(path))
+def buildserver():
+    local("python manage.py buildserver")
+
+def move():
+    local("python manage.py move_baked_files")
+
+def commit(message='updates'):
+    with lcd(settings.DEPLOY_DIR):
+        try:
+            message = raw_input("Enter a git commit message:  ")
+            local("git add -A && git commit -m \"%s\"" % message)
+        except:
+            print(green("Nothing new to commit.", bold=False))
+        local("git push")
+
+def deploy():
+    data()
+    time.sleep(5)
+    build()
+    time.sleep(5)
+    local("python manage.py move_baked_files")
+    time.sleep(5)
+    commit()
+
+def bootstrap():
+    with prefix("WORKON_HOME=$HOME/.virtualenvs"):
+        with prefix("source /usr/local/bin/virtualenvwrapper.sh"):
+            local("mkvirtualenv %s" % (env.project_name))
+            with prefix("workon %s" % (env.project_name)):
+                requirements()
+                time.sleep(2)
+                create_db()
+                time.sleep(2)
+                migrate()
+                time.sleep(2)
+                local("python manage.py createsuperuser")
+                run()
+
+def __env_cmd(cmd):
+    return env.bin_root + cmd

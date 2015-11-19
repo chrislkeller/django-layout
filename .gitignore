@@ -1,5 +1,72 @@
+# Byte-compiled/optimized/DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution/packaging
+.Python
+env/
+bin/
+build/
+develop-eggs/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# Rope
+.ropeproject
+
+# Django stuff:
+*.log
+*.pot
+
+# Sphinx documentation
+docs/_build/
+
+# added by me
+.DS_Store
+{{ project_name }}/settings_development.py
+{{ project_name }}/settings_production.py
+{{ project_name }}/public/*
 *.pyc
-*.egg-info
-{{ project_name }}/settings/local.py
-{{ project_name }}/settings/local/*
-docs/_build
+*.sqlite
+*.csv
+tmp/*
+public/static/*
+config/*.yml
+dbsync_setup.rb
+data/*
+SCRATCHPAD.md
+
+config.yml
+development.yml
+dbsync_setup.rb
