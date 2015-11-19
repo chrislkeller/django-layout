@@ -20,9 +20,7 @@ Quickstart
 
         cd {{ project_name }}
 
-~* Rename ```config.yml.template``` to ```config.yml``` and ```development.yml.template``` to ```development.yml```~
-
-* Open ```development.yml``` and add the name of your project as the database name on line 17.
+* If you have a password set on your development database, open ```development.yml``` and add the credentials.
 
         database:
           host: "127.0.0.1"
@@ -30,8 +28,6 @@ Quickstart
           database: "project_name"
           username: "root"
           password: ""
-
-~* Run ```fab makesecret``` and add the ```secret key``` to line 5 in ```development.yml```~
 
 * Run ```fab bootstrap```
     * This attempts to scaffold the project by:
