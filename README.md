@@ -1,16 +1,39 @@
-### Django Project Template
+Django Project Template
+=======================
 
 This Django Project Template provides some defaults for new KPCC Django projects. It is based on [django-layout](https://github.com/lincolnloop/django-layout).
 
 To use this template, run the following command:
 
-    django-admin.py startproject --template=https://github.com/chrislkeller/django-layout/zipball/master --extension=py,rst,gitignore,example project_name
+    django-admin.py startproject --template=https://github.com/chrislkeller/django-layout/zipball/master --extension=py,rst,gitignore,example {{ project_name }}
 
-#### Quickstart
+Quickstart
+==========
 
 **To bootstrap the project**:
 
 * This assumes you have Django 1.8 and Fabric installed outside of your virtualenv(s).
+
+* Rename ```config.yml.template``` to ```config.yml``` and ```development.yml.template``` to ```development.yml```
+
+* Open ```development.yml``` and add the name of your project as the database name on line 17.
+
+        database:
+          host: "127.0.0.1"
+          port: 3306
+          database: "project_name"
+          username: "root"
+          password: ""
+
+* Run ```fab bootstrap```
+    * This attempts to scaffold the project by:
+        * Creating virtualenv
+        * Activating the virtualenv
+        * Installing requirements
+        * Creating the database
+        * Applyin initial Django migrations
+        * Creating the Django superuser
+        * Running the Django development server
 
 **Available Fabric Commands**:
 
