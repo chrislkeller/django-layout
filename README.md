@@ -4,13 +4,13 @@ This Django Project Template provides some defaults for new KPCC Django projects
 
 To use this template, run the following command:
 
-    django-admin.py startproject --template=https://github.com/chrislkeller/django-layout/zipball/master --extension=py,rst,gitignore,example {{ project_name }}
+    django-admin.py startproject --template=https://github.com/chrislkeller/django-layout/zipball/master --extension=py,rst,gitignore,example project_name
 
 #### Quickstart
 
 **To bootstrap the project**:
 
-* This assumes you have Django 1.7 and Fabric installed outside of your virtualenv(s).
+* This assumes you have Django 1.8 and Fabric installed outside of your virtualenv(s).
 
 **Available Fabric Commands**:
 

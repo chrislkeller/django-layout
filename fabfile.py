@@ -16,11 +16,12 @@ from fabric.contrib.console import confirm
 from fabric.context_managers import lcd
 from fabric.colors import green
 from fabric.contrib import django
-django.settings_module("{{ project_name }}.settings_production")
+
+os.environ["DJANGO_SETTINGS_MODULE"] = "{{ project_name }}.settings_production"
+
 from django.conf import settings
 
 env.project_name = '{{ project_name }}'
-#env.repository = 'git@github.com:chrislkeller/{{ project_name }}.git'
 env.local_branch = 'master'
 env.remote_ref = 'origin/master'
 env.requirements_file = 'requirements.txt'

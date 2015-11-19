@@ -1,7 +1,12 @@
-"""Base settings for {{ project_name }} shared by all environments"""
-# Import global settings to make it easier to extend settings.
-#from django.conf.global_settings import *
-#from django.core.exceptions import SuspiciousOperation
+"""
+Django settings for {{ project_name }} project.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/1.7/topics/settings/
+
+For the full list of settings and their values, see
+https://docs.djangoproject.com/en/1.7/ref/settings/
+"""
 
 import os
 
@@ -67,7 +72,6 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = "{{ project_name }}.urls"
 
 INSTALLED_APPS = (
-    # default applications
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -78,15 +82,14 @@ INSTALLED_APPS = (
     "django.contrib.redirects",
     "django.contrib.humanize",
 
-    # installed applications
-
     # api & tools
-    "bakery",
-    "tastypie",
     "massadmin",
+    #"tastypie",
+    "bakery",
     "django_admin_bootstrapped.bootstrap3",
     "django_admin_bootstrapped",
     "django.contrib.admin",
+    "django.contrib.admindocs",
 )
 
 # A sample logging configuration. The only tangible logging
@@ -126,7 +129,7 @@ LOGGING = {
     },
 
     "loggers": {
-        "{{ project_name }}": {
+        "accountability_tracker": {
             "handlers": ["console"],
             "level": "DEBUG",
             "propagate": False,
