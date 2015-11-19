@@ -69,6 +69,13 @@ def superuser():
 bootstrapping functions
 """
 
+def rename_files():
+    """
+    shortcut to install requirements from repository's requirements.txt
+    """
+    os.rename("{{ project_name }}/settings_common.py.template", "{{ project_name }}/settings_common.py")
+    os.rename("{{ project_name }}/settings_production.py.template", "{{ project_name }}/settings_production.py")
+
 def requirements():
     """
     shortcut to install requirements from repository's requirements.txt

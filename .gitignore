@@ -54,8 +54,6 @@ docs/_build/
 
 # added by me
 .DS_Store
-{{ project_name }}/settings_development.py
-{{ project_name }}/settings_production.py
 {{ project_name }}/public/*
 *.pyc
 *.sqlite
@@ -66,7 +64,3 @@ config/*.yml
 dbsync_setup.rb
 data/*
 SCRATCHPAD.md
-
-config.yml
-development.yml
-dbsync_setup.rb

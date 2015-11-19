@@ -20,8 +20,6 @@ Quickstart
 
         cd project_name
 
-* Rename ```project_name/settings_common.py.template``` to ```project_name/settings_common.py``` and ```project_name/settings_production.py.template``` to ```project_name/settings_production.py```
-
 * Rename ```config.yml.template``` to ```config.yml``` and ```development.yml.template``` to ```development.yml```
 
 * Open ```development.yml``` and add the name of your project as the database name on line 17.
@@ -33,7 +31,7 @@ Quickstart
           username: "root"
           password: ""
 
-* Run ```fab makesecret``` and add the secret key to line 5 in ```development.yml```
+* Run ```fab makesecret``` and add the ```secret key``` to line 5 in ```development.yml```
 
 * Run ```fab bootstrap```
     * This attempts to scaffold the project by:
