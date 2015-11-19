@@ -5,7 +5,7 @@ This Django Project Template provides some defaults for new KPCC Django projects
 
 To use this template, run the following command:
 
-    django-admin.py startproject --template=https://github.com/chrislkeller/django-layout/zipball/master --extension=py,rst,gitignore,example project_name
+    django-admin.py startproject --template=https://github.com/chrislkeller/django-layout/zipball/master --extension=py,yml,gitignore project_name
 
 Quickstart
 ==========
@@ -20,7 +20,7 @@ Quickstart
 
         cd project_name
 
-* Rename ```config.yml.template``` to ```config.yml``` and ```development.yml.template``` to ```development.yml```
+~* Rename ```config.yml.template``` to ```config.yml``` and ```development.yml.template``` to ```development.yml```~
 
 * Open ```development.yml``` and add the name of your project as the database name on line 17.
 
@@ -31,7 +31,7 @@ Quickstart
           username: "root"
           password: ""
 
-* Run ```fab makesecret``` and add the ```secret key``` to line 5 in ```development.yml```
+~* Run ```fab makesecret``` and add the ```secret key``` to line 5 in ```development.yml```~
 
 * Run ```fab bootstrap```
     * This attempts to scaffold the project by:
@@ -78,9 +78,6 @@ Quickstart
 
 * ```fab commit```
     * Commits and pushes to the version control repo
-
-
-
 
 Mac OS Python development environment
 =====================================

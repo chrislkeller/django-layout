@@ -8,7 +8,7 @@ import pytz
 from pytz import timezone
 import yaml
 
-CONFIG_PATH = "%s_CONFIG_PATH" % ({{ project_name }}.upper())
+CONFIG_PATH = "%s_CONFIG_PATH" % ("{{ project_name }}".upper())
 CONFIG_FILE = os.environ.setdefault(CONFIG_PATH, "./development.yml")
 CONFIG = yaml.load(open(CONFIG_FILE))
 
