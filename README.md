@@ -1,5 +1,3 @@
-{% comment %}
-
 ### Django Project Template
 
 This Django Project Template provides some defaults for new KPCC Django projects. It is based on [django-layout](https://github.com/lincolnloop/django-layout).
@@ -7,10 +5,6 @@ This Django Project Template provides some defaults for new KPCC Django projects
 To use this template, run the following command:
 
     django-admin.py startproject --template=https://github.com/chrislkeller/django-layout/zipball/master --extension=py,rst,gitignore,example {{ project_name }}
-
-{% endcomment %}
-
-### {{ project_name }}
 
 #### Quickstart
 
