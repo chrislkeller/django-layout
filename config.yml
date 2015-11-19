@@ -8,7 +8,7 @@ secret_key: "{{ secret_key }}"
 internal_ips: "127.0.0.1"
 
 installed_apps:
-  - ""
+  - "django_admin_bootstrapped"
 
 # default is mysql. is set in accountability_tracker/accountability_tracker/settings_production.py
 database:

@@ -5,7 +5,7 @@ This Django Project Template provides some defaults for new KPCC Django projects
 
 To use this template, run the following command:
 
-    django-admin.py startproject --template=https://github.com/chrislkeller/django-layout/zipball/master --extension=py,yml,gitignore project_name
+    django-admin.py startproject --template=https://github.com/chrislkeller/django-layout/zipball/master --extension=py,yml,md,gitignore {{ project_name }}
 
 Quickstart
 ==========
@@ -18,7 +18,7 @@ Quickstart
 
 * Change into the project directory
 
-        cd project_name
+        cd {{ project_name }}
 
 ~* Rename ```config.yml.template``` to ```config.yml``` and ```development.yml.template``` to ```development.yml```~
 

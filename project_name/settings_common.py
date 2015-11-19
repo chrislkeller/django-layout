@@ -86,7 +86,6 @@ INSTALLED_APPS = (
     "massadmin",
     #"tastypie",
     "bakery",
-    "django_admin_bootstrapped",
     "django.contrib.admin",
     "django.contrib.admindocs",
 )
